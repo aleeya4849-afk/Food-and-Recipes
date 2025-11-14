@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leftover Chef | Turn Your Leftovers into Culinary Magic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --warm-orange: #FF8C42;
+            --cream-white: #FFF9F0;
+            --fresh-green: #8DB580;
+            --subtle-beige: #F5E6D3;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        body {
+            overflow-x: hidden;
+            background-color: var(--cream-white);
+        }
+        
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--warm-orange);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .pan-animation {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .pan {
+            width: 100px;
+            height: 20px;
+            background: #8B4513;
+            border-radius: 10px 10px 0 0;
+            position: absolute;
+            bottom: 40px;
+            left: 10px;
+        }
+        
+        .pan-handle {
+            width: 40px;
+            height: 8px;
+            background: #654321;
+            position: absolute;
+            bottom: 48px;
+            right: -30px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .egg {
+            width: 40px;
+            height: 30px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 60px;
+            left: 30px;
+            animation: flip 2s infinite;
+            transform-origin: center;
+        }
+        
+        .egg-yolk {
+            width: 20px;
+            height: 20px;
+            background: #FFD700;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 10px;
+        }
+        
+        @keyframes flip {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-40px) rotate(180deg);
+            }
+            100% {
+                transform: translateY(0) rotate(360deg);
+            }
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .slide-in-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        .slide-in-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .scale-up {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .scale-up.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .glow-button {
+            background: linear-gradient(45deg, var(--warm-orange), #FFB347);
+            box-shadow: 0 0 15px rgba(255, 140, 66, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(255, 140, 66, 0.8);
+            transform: translateY(-3px);
+        }
+        
+        .recipe-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .recipe-card:hover .recipe-image {
+            transform: scale(1.1);
+        }
+        
+        .recipe-image {
+            transition: transform 0.5s ease;
+        }
+        
+        .favorite-button {
+            transition: all 0.3s ease;
+        }
+        
+        .favorite-button.favorited {
+            color: #E53E3E;
+            transform: scale(1.2);
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(1.2);
+            }
+        }
+        
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .carousel-item {
+            min-width: 100%;
+            transition: opacity 0.5s ease;
+        }
+        
+        .carousel-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        
+        .accordion-item {
+            border-bottom: 1px solid #E2E8F0;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            padding: 20px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-content.open {
+            max-height: 500px;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: #E2E8F0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fresh-green), #A8D5BA);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1.5s ease;
+        }
+        
+        .counter {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--warm-orange);
+        }
+        
+        .testimonial-card {
+            transition: all 0.5s ease;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .star {
+            color: #E2E8F0;
+            transition: all 0.3s ease;
+        }
+        
+        .star.active {
+            color: #FFD700;
+        }
+        
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            transform: rotate(10deg) scale(1.2);
+            color: var(--warm-orange);
+        }
+        
+        .newsletter-input {
+            transition: all 0.3s ease;
+        }
+        
+        .newsletter-input:focus {
+            box-shadow: 0 0 10px rgba(255, 140, 66, 0.3);
+        }
+        
+        .confirmation-message {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+        
+        .confirmation-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .ingredient-input {
+            transition: all 0.3s ease;
+        }
+        
+        .ingredient-input:focus {
+            box-shadow: 0 0 15px rgba(141, 181, 128, 0.3);
+        }
+        
+        .voice-button {
+            transition: all 0.3s ease;
+        }
+        
+        .voice-button.active {
+            color: var(--warm-orange);
+            animation: pulse 1s infinite;
+        }
+        
+        .shuffle-animation {
+            animation: shuffle 0.5s ease;
+        }
+        
+        @keyframes shuffle {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(5deg);
+            }
+            50% {
+                transform: rotate(-5deg);
+            }
+            75% {
+                transform: rotate(5deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+        
+        .ingredient-tag {
+            display: inline-flex;
+            align-items: center;
+            background: var(--subtle-beige);
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .ingredient-tag button {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #718096;
+        }
+        
+        .ingredient-tag button:hover {
+            color: #E53E3E;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="bg-[#FFF9F0]">
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="pan-animation">
+            <div class="pan"></div>
+            <div class="pan-handle"></div>
+            <div class="egg">
+                <div class="egg-yolk"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold text-[#FF8C42]">Leftover Chef</h1>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#recipe-generator" class="text-[#4A5568] hover:text-[#FF8C42] transition-colors">Recipe Generator</a>
+                <a href="#trending" class="text-[#4A5568] hover:text-[#FF8C42] transition-colors">Trending</a>
+                <a href="#tips" class="text-[#4A5568] hover:text-[#FF8C42] transition-colors">Cooking Tips</a>
+                <a href="#testimonials" class="text-[#4A5568] hover:text-[#FF8C42] transition-colors">Testimonials</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="bg-[#FF8C42] text-white px-4 py-2 rounded-full hover:bg-[#e67a35] transition-colors">Sign In</button>
+                <button class="md:hidden text-[#4A5568]">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden pt-16">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#FF8C42]/10 to-[#8DB580]/10 z-10"></div>
+        
+        <!-- Floating Ingredients -->
+        <div class="floating-icon" style="top: 20%; left: 10%;">
+            <i class="fas fa-carrot text-4xl text-[#FF8C42]"></i>
+        </div>
+        <div class="floating-icon" style="top: 15%; right: 15%; animation-delay: 1s;">
+            <i class="fas fa-apple-alt text-4xl text-[#8DB580]"></i>
+        </div>
+        <div class="floating-icon" style="bottom: 25%; left: 15%; animation-delay: 2s;">
+            <i class="fas fa-cheese text-4xl text-[#FFD700]"></i>
+        </div>
+        <div class="floating-icon" style="bottom: 30%; right: 10%; animation-delay: 3s;">
+            <i class="fas fa-bread-slice text-4xl text-[#F5E6D3]"></i>
+        </div>
+        <div class="floating-icon" style="top: 40%; left: 5%; animation-delay: 4s;">
+            <i class="fas fa-egg text-4xl text-white"></i>
+        </div>
+        <div class="floating-icon" style="top: 35%; right: 5%; animation-delay: 5s;">
+            <i class="fas fa-fish text-4xl text-[#4FD1C5]"></i>
+        </div>
+        
+        <!-- Simmering Pot Animation -->
+        <div class="absolute bottom-10 left-10 opacity-20">
+            <i class="fas fa-utensils text-6xl text-[#FF8C42] floating" style="animation-delay: 0.5s;"></i>
+        </div>
+        
+        <div class="relative z-20 text-center text-[#2D3748] px-4 max-w-4xl">
+            <h2 class="text-4xl md:text-6xl font-bold mb-6 fade-in">Turn Your Leftovers into Culinary Magic</h2>
+            <p class="text-xl md:text-2xl mb-10 fade-in">Discover delicious recipes using ingredients you already have</p>
+            
+            <div class="max-w-2xl mx-auto mb-10 fade-in">
+                <div class="relative">
+                    <input type="text" id="ingredient-input" placeholder="Tomato, Rice, Egg, Chicken..." class="ingredient-input w-full p-4 pl-5 pr-12 rounded-full border-2 border-[#8DB580] shadow-lg focus:outline-none">
+                    <button class="voice-button absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-[#FF8C42]">
+                        <i class="fas fa-microphone text-xl"></i>
+                    </button>
+                </div>
+                <div id="ingredient-tags" class="mt-4 flex flex-wrap justify-center"></div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in">
+                <button class="glow-button text-lg font-semibold px-8 py-4 rounded-full text-white bounce">
+                    Cook Something!
+                </button>
+                <button class="bg-white text-[#FF8C42] border-2 border-[#FF8C42] text-lg font-semibold px-8 py-4 rounded-full hover:bg-[#FFF5EB] transition-colors shuffle-animation">
+                    Surprise Me!
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recipe Generator Section -->
+    <section id="recipe-generator" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#FF8C42] mb-4 fade-in">AI Recipe Generator</h2>
+            <p class="text-center text-[#4A5568] max-w-2xl mx-auto mb-12 fade-in">Enter your ingredients above and discover delicious recipes!</p>
+            
+            <div id="recipe-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Recipe results will appear here -->
+                <div class="text-center py-10 text-gray-500">
+                    <i class="fas fa-utensils text-6xl mb-4"></i>
+                    <p>Enter your ingredients to see recipe suggestions</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Recipes Section -->
+    <section id="trending" class="py-20 bg-[#F5E6D3]">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#FF8C42] mb-4 fade-in">Trending Recipes</h2>
+            <p class="text-center text-[#4A5568] max-w-2xl mx-auto mb-12 fade-in">Discover what others are cooking with their leftovers</p>
+            
+            <div class="carousel-container h-96 rounded-2xl shadow-lg fade-in">
+                <div class="carousel h-full">
+                    <!-- Trending Recipe 1 -->
+                    <div class="carousel-item h-full relative">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80" alt="Buddha Bowl" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                            <h3 class="text-2xl font-bold mb-2">Rainbow Buddha Bowl</h3>
+                            <p class="mb-4">A colorful mix of roasted vegetables, grains, and protein</p>
+                            <div class="flex items-center">
+                                <div class="flex mr-4">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star-half-alt text-yellow-400"></i>
+                                </div>
+                                <span>4.5 (128 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trending Recipe 2 -->
+                    <div class="carousel-item h-full relative">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1981&q=80" alt="Pizza" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                            <h3 class="text-2xl font-bold mb-2">Everything-But-The-Kitchen-Sink Pizza</h3>
+                            <p class="mb-4">Use up all your leftover veggies and proteins on this delicious pizza</p>
+                            <div class="flex items-center">
+                                <div class="flex mr-4">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                </div>
+                                <span>5.0 (94 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trending Recipe 3 -->
+                    <div class="carousel-item h-full relative">
+                        <img src="https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Soup" class="w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 text-white">
+                            <h3 class="text-2xl font-bold mb-2">Hearty Vegetable Soup</h3>
+                            <p class="mb-4">A comforting soup that uses up all your leftover vegetables</p>
+                            <div class="flex items-center">
+                                <div class="flex mr-4">
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                </div>
+                                <span>5.0 (203 reviews)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-nav">
+                    <div class="carousel-dot active"></div>
+                    <div class="carousel-dot"></div>
+                    <div class="carousel-dot"></div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <button class="bg-[#FF8C42] text-white px-6 py-3 rounded-full hover:bg-[#e67a35] transition-colors">View All Trending Recipes</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cooking Tips Section -->
+    <section id="tips" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#FF8C42] mb-4 fade-in">Cooking Tips & Tricks</h2>
+            <p class="text-center text-[#4A5568] max-w-2xl mx-auto mb-12 fade-in">Expert advice to make the most of your ingredients</p>
+            
+            <div class="max-w-3xl mx-auto">
+                <!-- Tip 1 -->
+                <div class="accordion-item fade-in">
+                    <div class="accordion-header">
+                        <h3 class="text-xl font-semibold text-[#2D3748]">How to Store Vegetables for Longer Freshness</h3>
+                        <span class="accordion-icon text-[#FF8C42]">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="accordion-content">
+                        <p class="text-[#4A5568] pb-6">Keep leafy greens in airtight containers with a paper towel to absorb moisture. Store root vegetables in a cool, dark place. Most vegetables last longer when stored unwashed in the refrigerator's crisper drawer.</p>
+                    </div>
+                </div>
+                
+                <!-- Tip 2 -->
+                <div class="accordion-item fade-in">
+                    <div class="accordion-header">
+                        <h3 class="text-xl font-semibold text-[#2D3748]">Creative Ways to Use Stale Bread</h3>
+                        <span class="accordion-icon text-[#FF8C42]">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="accordion-content">
+                        <p class="text-[#4A5568] pb-6">Transform stale bread into croutons, breadcrumbs, or bread pudding. You can also make French toast, panzanella salad, or use it to thicken soups and sauces.</p>
+                    </div>
+                </div>
+                
+                <!-- Tip 3 -->
+                <div class="accordion-item fade-in">
+                    <div class="accordion-header">
+                        <h3 class="text-xl font-semibold text-[#2D3748]">Freezing Tips for Leftovers</h3>
+                        <span class="accordion-icon text-[#FF8C42]">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="accordion-content">
+                        <p class="text-[#4A5568] pb-6">Portion leftovers before freezing for easy thawing. Use airtight containers or freezer bags to prevent freezer burn. Label everything with dates. Most cooked foods freeze well for 2-3 months.</p>
+                    </div>
+                </div>
+                
+                <!-- Tip 4 -->
+                <div class="accordion-item fade-in">
+                    <div class="accordion-header">
+                        <h3 class="text-xl font-semibold text-[#2D3748]">Reviving Wilted Vegetables</h3>
+                        <span class="accordion-icon text-[#FF8C42]">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="accordion-content">
+                        <p class="text-[#4A5568] pb-6">Soak limp vegetables in ice water for 5-10 minutes to crisp them up. This works well for carrots, celery, and leafy greens. For slightly wilted herbs, trim the stems and place in a glass of water like a bouquet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Food Waste Tracker -->
+    <section class="py-20 bg-[#8DB580] text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 fade-in">Your Food Waste Impact</h2>
+            <p class="text-center max-w-2xl mx-auto mb-12 fade-in">See how much food you've saved from going to waste</p>
+            
+            <div class="max-w-2xl mx-auto bg-white/20 rounded-2xl p-8 backdrop-blur-sm fade-in">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold mb-2">This Week</h3>
+                    <div class="counter" id="food-saved">0</div>
+                    <p class="text-lg">items saved from waste</p>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span>Your Progress</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-2xl font-bold">12</div>
+                        <p>Recipes Created</p>
+                    </div>
+                    <div class="bg-white/10 rounded-lg p-4">
+                        <div class="text-2xl font-bold">3.2kg</div>
+                        <p>Food Saved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-[#FF8C42] mb-4 fade-in">What Our Chefs Say</h2>
+            <p class="text-center text-[#4A5568] max-w-2xl mx-auto mb-12 fade-in">Hear from home cooks who transformed their kitchens with Leftover Chef</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-card bg-[#F5E6D3] rounded-2xl p-6 shadow-lg slide-in-left">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-[#FF8C42] rounded-full flex items-center justify-center text-white font-bold mr-3">S</div>
+                        <div>
+                            <p class="font-semibold text-[#2D3748]">Sarah Johnson</p>
+                            <p class="text-sm text-[#4A5568]">Home Cook</p>
+                        </div>
+                    </div>
+                    <p class="text-[#4A5568] mb-4">"Leftover Chef has completely changed how I approach cooking. I've reduced my food waste by 70% and discovered recipes I never would have thought of!"</p>
+                    <div class="flex">
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="testimonial-card bg-[#F5E6D3] rounded-2xl p-6 shadow-lg fade-in">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-[#8DB580] rounded-full flex items-center justify-center text-white font-bold mr-3">M</div>
+                        <div>
+                            <p class="font-semibold text-[#2D3748]">Marcus Chen</p>
+                            <p class="text-sm text-[#4A5568]">College Student</p>
+                        </div>
+                    </div>
+                    <p class="text-[#4A5568] mb-4">"As a student on a budget, this app is a lifesaver. I can make delicious meals with whatever I have left in my fridge instead of ordering takeout."</p>
+                    <div class="flex">
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="testimonial-card bg-[#F5E6D3] rounded-2xl p-6 shadow-lg slide-in-right">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-[#FF8C42] rounded-full flex items-center justify-center text-white font-bold mr-3">A</div>
+                        <div>
+                            <p class="font-semibold text-[#2D3748]">Amira Hassan</p>
+                            <p class="text-sm text-[#4A5568]">Busy Parent</p>
+                        </div>
+                    </div>
+                    <p class="text-[#4A5568] mb-4">"I love how Leftover Chef helps me create quick, healthy meals for my family while reducing food waste. The recipe suggestions are always creative and delicious!"</p>
+                    <div class="flex">
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star active"><i class="fas fa-star"></i></div>
+                        <div class="star"><i class="fas fa-star"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#2D3748] text-white py-12 relative overflow-hidden">
+        <!-- Floating Utensils -->
+        <div class="floating-icon" style="top: 20%; left: 5%;">
+            <i class="fas fa-utensil-spoon text-2xl text-[#FF8C42]"></i>
+        </div>
+        <div class="floating-icon" style="bottom: 20%; right: 5%; animation-delay: 2s;">
+            <i class="fas fa-blender text-2xl text-[#8DB580]"></i>
+        </div>
+        <div class="floating-icon" style="top: 40%; right: 10%; animation-delay: 4s;">
+            <i class="fas fa-mortar-pestle text-2xl text-[#F5E6D3]"></i>
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <h3 class="text-2xl font-bold mb-4 text-[#FF8C42]">Leftover Chef</h3>
+                    <p class="mb-6 max-w-md">Turn your leftovers into culinary magic. Reduce food waste and discover delicious recipes with ingredients you already have.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="social-icon w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-icon w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-pinterest"></i>
+                        </a>
+                        <a href="#" class="social-icon w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="#" class="social-icon w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Explore</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-[#FF8C42] transition-colors">Recipe Generator</a></li>
+                        <li><a href="#" class="hover:text-[#FF8C42] transition-colors">Trending Recipes</a></li>
+                        <li><a href="#" class="hover:text-[#FF8C42] transition-colors">Cooking Tips</a></li>
+                        <li><a href="#" class="hover:text-[#FF8C42] transition-colors">Food Waste Tracker</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Stay Updated</h4>
+                    <p class="mb-4">Subscribe for new recipes and cooking tips.</p>
+                    <form class="flex mb-2" id="newsletter-form">
+                        <input type="email" placeholder="Your email" class="newsletter-input px-4 py-2 rounded-l-lg text-gray-800 w-full focus:outline-none">
+                        <button type="submit" class="bg-[#FF8C42] px-4 py-2 rounded-r-lg hover:bg-[#e67a35] transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div class="confirmation-message text-[#FF8C42] text-sm" id="confirmation-message">
+                        Thank you for subscribing!
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 mt-8 pt-8 text-center text-sm">
+                <p>&copy; 2023 Leftover Chef. All rights reserved. | <a href="#" class="hover:text-[#FF8C42] transition-colors">Privacy Policy</a> | <a href="#" class="hover:text-[#FF8C42] transition-colors">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+            }, 2000);
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Ingredient input functionality
+        const ingredientInput = document.getElementById('ingredient-input');
+        const ingredientTags = document.getElementById('ingredient-tags');
+        const voiceButton = document.querySelector('.voice-button');
+
+        ingredientInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim() !== '') {
+                addIngredientTag(this.value.trim());
+                this.value = '';
+            }
+        });
+
+        function addIngredientTag(ingredient) {
+            const tag = document.createElement('div');
+            tag.className = 'ingredient-tag';
+            tag.innerHTML = `
+                ${ingredient}
+                <button type="button"><i class="fas fa-times"></i></button>
+            `;
+            
+            tag.querySelector('button').addEventListener('click', function() {
+                tag.remove();
+            });
+            
+            ingredientTags.appendChild(tag);
+        }
+
+        // Voice input simulation
+        voiceButton.addEventListener('click', function() {
+            this.classList.toggle('active');
+            
+            if (this.classList.contains('active')) {
+                // Simulate voice recognition
+                setTimeout(() => {
+                    const sampleIngredients = ['tomato', 'onion', 'garlic', 'pasta'];
+                    const randomIngredient = sampleIngredients[Math.floor(Math.random() * sampleIngredients.length)];
+                    addIngredientTag(randomIngredient);
+                    this.classList.remove('active');
+                }, 2000);
+            }
+        });
+
+        // Carousel functionality
+        const carousel = document.querySelector('.carousel');
+        const dots = document.querySelectorAll('.carousel-dot');
+        let currentSlide = 0;
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateCarousel();
+            });
+        });
+
+        function updateCarousel() {
+            carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Auto-advance carousel
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % dots.length;
+            updateCarousel();
+        }, 5000);
+
+        // Accordion functionality
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const isOpen = content.classList.contains('open');
+                
+                // Close all accordions
+                document.querySelectorAll('.accordion-content').forEach(item => {
+                    item.classList.remove('open');
+                });
+                document.querySelectorAll('.accordion-header').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Open clicked accordion if it was closed
+                if (!isOpen) {
+                    content.classList.add('open');
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Food waste tracker animation
+        const foodSaved = document.getElementById('food-saved');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        
+        // Animate counter
+        let count = 0;
+        const targetCount = 27;
+        const duration = 2000; // 2 seconds
+        const increment = targetCount / (duration / 16); // 60fps
+        
+        function updateCounter() {
+            if (count < targetCount) {
+                count += increment;
+                foodSaved.textContent = Math.floor(count);
+                
+                // Update progress bar
+                const percent = (count / targetCount) * 100;
+                progressFill.style.width = `${percent}%`;
+                progressPercent.textContent = `${Math.floor(percent)}%`;
+                
+                requestAnimationFrame(updateCounter);
+            } else {
+                foodSaved.textContent = targetCount;
+                progressFill.style.width = '100%';
+                progressPercent.textContent = '100%';
+            }
+        }
+        
+        // Start counter animation when section is in view
+        const wasteTrackerSection = document.querySelector('.bg-[#8DB580]');
+        const wasteObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    wasteObserver.unobserve(entry.target);
+                }
+            });
+        });
+        
+        wasteObserver.observe(wasteTrackerSection);
+
+        // Newsletter form
+        const newsletterForm = document.getElementById('newsletter-form');
+        const confirmationMessage = document.getElementById('confirmation-message');
+
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            confirmationMessage.classList.add('show');
+            setTimeout(() => {
+                confirmationMessage.classList.remove('show');
+            }, 3000);
+            this.reset();
+        });
+
+        // Surprise Me button
+        document.querySelector('.shuffle-animation').addEventListener('click', function() {
+            this.classList.add('shuffle-animation');
+            
+            // Show loading state
+            const originalText = this.textContent;
+            this.innerHTML = '<i class="fas fa-random fa-spin mr-2"></i> Finding Recipe...';
+            this.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                const recipes = [
+                    "Mystery Stir-Fry Surprise",
+                    "Kitchen Sink Frittata",
+                    "Everything-But-The-Cupboard Curry",
+                    "Leftover Medley Tacos",
+                    "Fridge Cleanout Pasta"
+                ];
+                
+                const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+                
+                // Create popup with random recipe
+                const popup = document.createElement('div');
+                popup.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black/50';
+                popup.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+                        <h3 class="text-2xl font-bold text-[#FF8C42] mb-4">Your Surprise Recipe!</h3>
+                        <p class="text-xl text-[#4A5568] mb-6">${randomRecipe}</p>
+                        <button class="bg-[#FF8C42] text-white px-6 py-2 rounded-full hover:bg-[#e67a35] transition-colors" id="close-popup">Create This Recipe</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(popup);
+                
+                document.getElementById('close-popup').addEventListener('click', function() {
+                    document.body.removeChild(popup);
+                });
+                
+                // Reset button
+                this.innerHTML = originalText;
+                this.disabled = false;
+                this.classList.remove('shuffle-animation');
+            }, 2000);
+        });
+
+        // Cook Something button
+        document.querySelector('.glow-button').addEventListener('click', function() {
+            const tags = document.querySelectorAll('.ingredient-tag');
+            if (tags.length === 0) {
+                alert('Please add some ingredients first!');
+                return;
+            }
+            
+            // Show loading in recipe results
+            const recipeResults = document.getElementById('recipe-results');
+            recipeResults.innerHTML = `
+                <div class="col-span-3 text-center py-10">
+                    <i class="fas fa-utensils text-6xl mb-4 text-[#FF8C42]"></i>
+                    <p class="text-xl">Finding recipes for your ingredients...</p>
+                </div>
+            `;
+            
+            // Scroll to recipe section
+            document.getElementById('recipe-generator').scrollIntoView({ behavior: 'smooth' });
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Sample recipes based on ingredients
+                const sampleRecipes = [
+                    {
+                        name: "Vegetable Stir Fry",
+                        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                        description: "A quick and healthy stir fry using your fresh vegetables",
+                        time: "20 mins",
+                        difficulty: "Easy"
+                    },
+                    {
+                        name: "Hearty Soup",
+                        image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                        description: "A comforting soup that makes use of all your leftover veggies",
+                        time: "40 mins",
+                        difficulty: "Easy"
+                    },
+                    {
+                        name: "Kitchen Sink Omelette",
+                        image: "https://images.unsplash.com/photo-1551782450-17144efb9c50?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+                        description: "A protein-packed omelette with whatever ingredients you have",
+                        time: "15 mins",
+                        difficulty: "Easy"
+                    }
+                ];
+                
+                // Generate recipe cards
+                recipeResults.innerHTML = '';
+                sampleRecipes.forEach(recipe => {
+                    const recipeCard = document.createElement('div');
+                    recipeCard.className = 'recipe-card bg-white rounded-2xl shadow-lg overflow-hidden scale-up';
+                    recipeCard.innerHTML = `
+                        <div class="h-64 overflow-hidden">
+                            <img src="${recipe.image}" alt="${recipe.name}" class="w-full h-full object-cover recipe-image">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-[#2D3748]">${recipe.name}</h3>
+                                <button class="favorite-button text-gray-400">
+                                    <i class="far fa-heart"></i>
+                                </button>
+                            </div>
+                            <p class="text-[#4A5568] mb-4">${recipe.description}</p>
+                            <div class="flex justify-between items-center text-sm text-[#718096]">
+                                <span><i class="far fa-clock mr-1"></i> ${recipe.time}</span>
+                                <span>${recipe.difficulty}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add favorite functionality
+                    const favoriteButton = recipeCard.querySelector('.favorite-button');
+                    favoriteButton.addEventListener('click', function() {
+                        this.classList.toggle('favorited');
+                        this.innerHTML = this.classList.contains('favorited') ? 
+                            '<i class="fas fa-heart"></i>' : 
+                            '<i class="far fa-heart"></i>';
+                    });
+                    
+                    recipeResults.appendChild(recipeCard);
+                    
+                    // Trigger scale-up animation
+                    setTimeout(() => {
+                        recipeCard.classList.add('visible');
+                    }, 100);
+                });
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
